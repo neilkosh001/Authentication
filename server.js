@@ -1,37 +1,38 @@
-//NPM Packages
 
+// NPM Packages
 var express = require('express');
 var bodyParser = require('body-parser');
-var passport =  require ('passport');
-var session = require ('express-session');
-
-
+var session = require('express-session');
+const db = require("./models");
 // Config
-var PORT    = process.env.port || 8080;
-var mode    = process.env.NODE_ENV;
-var app     = express();
+var passport = require('./helpers/passport');
+var secret = require('./config/keys');
 
-// Middleware
-app.use(bodyParser.urlencoded({extended: true}));
+var PORT = process.env.PORT || 8081;
+var mode = process.env.NODE_ENV;
+var app = express();
+
+// MiddleWare
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-//Passport
-app.use(sessionStorage({secret:"helloworld", resave:true, saveUnitialized:true}))
+// Auth & Session Initialization
+app.use(session({ secret: secret.key, resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 
 // Routes
-
 require('./routes/htmlRoutes')(app);
 require('./routes/apiRoutes')(app);
 
-
-app.listen(PORT, function(){
-    if(mode !== 'production'){
-        var opn = require('opn')
-        opn(`http://localhost:${PORT}`, {app: ['google chrome']})
+// Server
+db.sequelize.sync().then(()=>{
+app.listen(PORT, function () {
+    if (mode !== 'production') {
+        var opn = require('opn');
+        opn(`http://localhost:${PORT}`, { app: ['google chrome'] })
     }
-    console.log(`Hey I'm listening on ${PORT}`);
-})
-
+    console.log(`👋  Hey there I'm 👂 ing on Port: ${PORT}`);
+});
+});

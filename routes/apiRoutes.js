@@ -1,19 +1,7 @@
 var db = require("../models");
+var passport = require("../helpers/passport.js");
 
-module.exports = function(app){
-    app.post('/api/signup', function(req,res){
-        db.User.create({
-            email: req.body.email, 
-            password: req.body.password
-        }).then(function(result){
-            console.log(res)
-            res.json(result);
-        }).catch(function(err){
-            console.log(err); 
-            res.json(err);
-        }); 
-    });
-
+module.exports = function (app) {
     app.post("/api/login", passport.authenticate("local"), (req, res) => {
         res.json("/members");
     })
@@ -46,5 +34,4 @@ module.exports = function(app){
         req.logout();
         res.redirect("/");
     });
-}
-
+};
